@@ -52,8 +52,15 @@ ln -sfn /你的路径/open-cwd ~/.dsh/profiles/node_modules/open-cwd
 ## 行为说明
 
 - 按钮解析当前会话所属工作区（`useWorkspaces` 快照，按 `sessionIds` 匹配；找不到回退最近使用的工作区 `recentWorkspaceId`），点击调用 Client `workspaces.openPath(path)`。
-- 当前会话不属于任何工作区且无最近工作区时按钮禁用。
+- 当前会话没有工作目录（cwd）时按钮禁用。
 - 悬停按钮显示完整目录路径。
+
+## 行为说明（v2，2026-09-08 适配 dsh 前端升级）
+
+- v1 依赖的 `conversation.input.left` InputZone owner props 与 Client `workspaces.openPath` 已在新版移除。
+- v2 改为：会话工作目录取自 `ctx.sessions.list` 快照的 `byId[sessionId].cwd`；
+  打开动作调用 Host 侧 `session.openWorkspacePath`（内部即跨平台 openNativePath，
+  macOS `open` / Windows `Invoke-Item`）。
 
 ## 故障排查
 
@@ -72,4 +79,5 @@ ln -sfn /你的路径/open-cwd ~/.dsh/profiles/node_modules/open-cwd
 ## 版本历史
 
 - v1（动态插件 `opcwd-1/pkg-1`）：会话级临时插件，进程重启即消失
-- v1.0（当前）：持久化包，随 dsh 启动自动挂载
+- v1.0：持久化包，随 dsh 启动自动挂载
+- v1.1（2026-09-08）：适配 dsh 前端升级（slot props 契约变化 + `workspaces.openPath` 移除），改用 `session.openWorkspacePath`
